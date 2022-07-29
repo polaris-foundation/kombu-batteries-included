@@ -1,0 +1,64 @@
+version: 2.1
+orbs:
+  ms-teams: cloudradar-monitoring/ms-teams@0.0.1
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Set up tox tests
+          command: |
+            poetry self update
+            poetry config http-basic.sensynehealth ${GEMFURY_DOWNLOAD_KEY} ''
+            pip install --upgrade tox
+      - restore_cache:
+          keys:
+            - v1-poetry-deps-{{ checksum "poetry.lock" }}
+            - v1-poetry-deps-
+      - run:
+          name: Run tox tests
+          command: tox -e py39
+      - save_cache:
+          key: v1-poetry-deps-{{ checksum "poetry.lock" }}
+          paths:
+            - .tox
+      - persist_to_workspace:
+          root: coverage-reports
+          paths:
+            - coverage.xml
+  deploy-gemfury:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Install deps
+          command: pip install --upgrade toml
+      - run:
+          name: Publish package to gemfury
+          command: .circleci/publish_gemfury.sh
+      - run:
+          name: Create git tag
+          command: git tag v$(python3 .circleci/parse_version.py)
+      - run:
+          name: Push git tag
+          command: git push --tags
+      - ms-teams/report:
+          only_on_fail: true
+          webhook_url: ${MSTEAMS_NOTIFY_WEBHOOK_URL}
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - test:
+          context: engineering-build
+      - deploy-gemfury:
+          context: engineering-build
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master

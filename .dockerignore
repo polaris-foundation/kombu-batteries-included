@@ -1,0 +1,4 @@
+.circleci
+.common
+coverage-reports
+tests

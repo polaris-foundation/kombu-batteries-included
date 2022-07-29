@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "kombu-batteries-included"
+version = "1.1.3"
+description = "Sensyne Health : Kombu Batteries Included"
+authors = ["Jon Daly <jonathan.daly@sensynehealth.com>"]
+keywords = ["kombu", "rabbitmq", "amqp"]
+repository = "https://github.com/draysontechnologies/kombu-batteries-included"
+
+[[tool.poetry.source]]
+name = "sensynehealth"
+url = "https://pypi.fury.io/sensynehealth/"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+environs = "9.*"
+kombu = "5.*"
+she-logging = "1.*"
+
+[tool.poetry.dev-dependencies]
+bandit = "*"
+black = "*"
+coloredlogs = "*"
+coverage = "*"
+isort = "*"
+mypy = "*"
+pytest = "*"
+pytest-freezegun = "*"
+pytest-mock = "*"
+pytz = "*"
+safety = "*"
+tox = "*"
+types-pytz = "*"
+
+[tool.mypy]
+namespace_packages=true
+ignore_missing_imports=false
+disallow_untyped_defs=true
+
+[[tool.mypy.overrides]]
+module = [
+    "kombu"
+]
+ignore_missing_imports = true
+
+[tool.isort]
+profile = "black"
+known_third_party = ["_pytest", "environs", "kombu", "pytest", "pytest_mock", "pytz", "she_logging", "toml"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]

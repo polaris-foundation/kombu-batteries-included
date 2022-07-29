@@ -1,0 +1,12 @@
+[paths]
+source =
+    kombu_batteries_included/*
+
+[report]
+omit =
+  kombu_batteries_included/config.py
+
+fail_under = 95
+
+show_missing = true
+skip_covered = true
